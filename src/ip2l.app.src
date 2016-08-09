@@ -1,0 +1,13 @@
+{application, ip2l, [
+	{description, "IP2Location access application"},
+	{vsn, "0.5.0"},
+	{modules, []},
+	{registered, []},
+	{applications, [
+		kernel,
+		stdlib,
+		simplepool
+	]},
+	{mod, {ip2l_app, []}},
+	{env, []}
+]}.
