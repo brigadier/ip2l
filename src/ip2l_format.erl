@@ -148,6 +148,5 @@ netspeed(<<"COMP">>) -> company;
 netspeed(<<"T1">>) -> t1;
 netspeed(_) -> undefined.
 
-country_short(<<"-">>) -> <<"XX">>;
 country_short(<<"??">>) -> <<"XX">>;
 country_short(V) -> V.
