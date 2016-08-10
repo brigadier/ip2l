@@ -42,7 +42,7 @@ Build
 ```erlang
 ip2l:start().
 ok = ip2l:start_pool(pool1, [{size, 32}, {sup_flags, {one_for_all, 1, 5}}], "priv").
-#ip2l{country_short = <<"AU">>, country_long = <<"Australia">>} = ip2l:lookup(pool1, {1, 10, 10, 10}).
+{ok, #ip2l{country_short = <<"AU">>, country_long = <<"Australia">>}} = ip2l:lookup(pool1, {1, 10, 10, 10}).
 ok = ip2l:reload_base(pool1, "/tmp/otherdir/").
 ```
 

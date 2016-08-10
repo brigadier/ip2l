@@ -46,7 +46,7 @@ handle_call({lookup, _IP}, _From, #state{handle = undefined} = State) ->
 
 handle_call({lookup, IP}, _From, #state{handle = Handle} = State) ->
 	Result = ip2l_format:lookup(IP, Handle),
-	{reply, Result, State};
+	{reply, {ok, Result}, State};
 
 handle_call({open, undefined}, _From, #state{handle = Handle} = State) ->
 	maybeclose(Handle),

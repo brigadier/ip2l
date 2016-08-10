@@ -18,19 +18,19 @@ all() -> [{group, main}].
 testip2l(Config) ->
 	{ok, #ip2lmeta{dbtype = 1}} = ip2l:state(pool1),
 	undefined = ip2l:state(pool3),
-	#ip2l{country_short = <<"-">>, country_long = <<"-">>} = ip2l:lookup(pool1, {10, 10, 10, 10}),
-	#ip2l{country_short = <<"AU">>, country_long = <<"Australia">>} = ip2l:lookup(pool1, {1, 10, 10, 10}),
+	{ok, #ip2l{country_short = <<"-">>, country_long = <<"-">>}} = ip2l:lookup(pool1, {10, 10, 10, 10}),
+	{ok, #ip2l{country_short = <<"AU">>, country_long = <<"Australia">>}} = ip2l:lookup(pool1, {1, 10, 10, 10}),
 	{error, closed} = ip2l:lookup(pool3, {1, 10, 10, 10}),
 
 	DataDir = ?config(data_dir, Config),
 	Dir3 = filename:join(DataDir, "dir3"),
 	ok = file:make_link(filename:join(DataDir, "IP-COUNTRY-SAMPLE.BIN"), filename:join(Dir3, "IP-COUNTRY-SAMPLE.BIN")),
 	ok = ip2l:reload_base(pool3),
-	#ip2l{country_short = <<"AU">>, country_long = <<"Australia">>} = ip2l:lookup(pool1, {1, 10, 10, 10}),
+	{ok, #ip2l{country_short = <<"AU">>, country_long = <<"Australia">>}} = ip2l:lookup(pool1, {1, 10, 10, 10}),
 
 	Dir2 = filename:join(DataDir, "dir2"),
 	ok = ip2l:start_pool(pool2, [{size, 2}, {sup_flags, {one_for_all, 1, 5}}], Dir2),
-	#ip2l{country_short = <<"AU">>, country_long = <<"Australia">>} = ip2l:lookup(pool2, {1, 10, 10, 10}),
+	{ok, #ip2l{country_short = <<"AU">>, country_long = <<"Australia">>}} = ip2l:lookup(pool2, {1, 10, 10, 10}),
 	ip2l:stop_pool(pool1),
 	case catch ip2l:lookup(pool1, {10, 10, 10, 10}) of
 		{'EXIT', _} -> ok
@@ -60,7 +60,7 @@ loadtest100k(Config) ->
 					lists:foreach(
 						fun(_) ->
 							IP = {rand:uniform(255), rand:uniform(255), rand:uniform(255), rand:uniform(255)},
-							R = ip2l:lookup(pool1, IP),
+							{ok, R} = ip2l:lookup(pool1, IP),
 							true = is_tuple(R) orelse R == not_found
 						end,
 						L2

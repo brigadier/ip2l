@@ -22,7 +22,7 @@ start() ->
 	true = ensure_started(ip2l).
 
 
--spec lookup(atom(), {integer(), integer(), integer(), integer()}) -> {ok, #ip2l{}} | not_found | {error, term()}.
+-spec lookup(atom(), {integer(), integer(), integer(), integer()}) -> {ok, #ip2l{}} | {error, term()}.
 lookup(Pool, IP) ->
 	ip2l_worker:lookup(maybe_worker(Pool), IP).
 
