@@ -1,4 +1,4 @@
--record(meta, {
+-record(ip2lmeta, {
 	dbtype,
 	dbcolumn,
 	dbdate,

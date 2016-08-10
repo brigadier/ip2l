@@ -55,7 +55,7 @@ reload_base(PoolName, Path) ->
 	Controller = maybe_controller(PoolName),
 	ip2l_controller:reload(Controller, Path).
 
--spec state(atom()|{proc, atom()}) -> undefined | {ok, #meta{}}.
+-spec state(atom()|{proc, atom()}) -> undefined | {ok, #ip2lmeta{}}.
 state(PoolName) ->
 	Controller = maybe_controller(PoolName),
 	ip2l_controller:meta(Controller).

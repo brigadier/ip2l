@@ -29,7 +29,7 @@ try_read_meta(Handle) ->
 			IPv6DBCount:32/little-unsigned-integer, IPv6DBAddr:32/little-unsigned-integer>>} when DBType =< 24 ->
 			{ok, #ip2lfile{
 				fhandle = Handle,
-				meta = #meta{
+				meta = #ip2lmeta{
 					dbtype = DBType,
 					dbcolumn = DBColumn,
 					dbdate = {2000 + DBYear, DBMonth, DBDay},
@@ -49,10 +49,10 @@ lookup({A, B, C, D} = _IPv4, IP2LFile) ->
 	WIp = (A bsl 24) + (B bsl 16) + (C bsl 8) + D,
 	lookup_ipv4(WIp, IP2LFile).
 
-lookup_ipv4(WIp, #ip2lfile{meta = #meta{ipv4dbcount = DBCount}} = IP2LFile) ->
+lookup_ipv4(WIp, #ip2lfile{meta = #ip2lmeta{ipv4dbcount = DBCount}} = IP2LFile) ->
 	bisect_ipv4(WIp, 0, DBCount, IP2LFile).
 
-bisect_ipv4(WIp, Low, High, #ip2lfile{meta = #meta{dbcolumn = DBColumn, ipv4dbaddr = BaseAddr}} = IP2LFile) when Low =< High ->
+bisect_ipv4(WIp, Low, High, #ip2lfile{meta = #ip2lmeta{dbcolumn = DBColumn, ipv4dbaddr = BaseAddr}} = IP2LFile) when Low =< High ->
 	Mid = (Low + High) div 2,
 	IPFrom = read_ipv4(BaseAddr + Mid * (DBColumn * 4), IP2LFile),
 	IPTo = read_ipv4(BaseAddr + (Mid + 1) * (DBColumn * 4), IP2LFile),
@@ -66,7 +66,7 @@ bisect_ipv4(WIp, Low, High, #ip2lfile{meta = #meta{dbcolumn = DBColumn, ipv4dbad
 read_ipv4(Offset, #ip2lfile{fhandle = FHandle} = _IP2LFile) ->
 	readi(FHandle, Offset).
 
-read_record_ipv4(Offset, #ip2lfile{fhandle = FHandle, meta = #meta{dbcolumn = DBColumn, ipv4dbaddr = BaseAddr, dbtype = DBType}}) ->
+read_record_ipv4(Offset, #ip2lfile{fhandle = FHandle, meta = #ip2lmeta{dbcolumn = DBColumn, ipv4dbaddr = BaseAddr, dbtype = DBType}}) ->
 	#ip2l{
 		country_short = country_short(maybe_string_v4(FHandle, Offset, DBColumn, BaseAddr, DBType, ?COUNTRY_POSITION, 1)),
 		country_long = maybe_string_v4(FHandle, Offset, DBColumn, BaseAddr, DBType, ?COUNTRY_POSITION, 4),

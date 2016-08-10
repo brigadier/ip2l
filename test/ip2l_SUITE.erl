@@ -16,7 +16,7 @@ groups() -> [{main, [], [
 all() -> [{group, main}].
 
 testip2l(Config) ->
-	{ok, #meta{dbtype = 1}} = ip2l:state(pool1),
+	{ok, #ip2lmeta{dbtype = 1}} = ip2l:state(pool1),
 	undefined = ip2l:state(pool3),
 	#ip2l{country_short = <<"-">>, country_long = <<"-">>} = ip2l:lookup(pool1, {10, 10, 10, 10}),
 	#ip2l{country_short = <<"AU">>, country_long = <<"Australia">>} = ip2l:lookup(pool1, {1, 10, 10, 10}),
