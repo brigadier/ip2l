@@ -102,36 +102,30 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
-%%load(undefined, Workers) -> %%if we decide to start the app without file. it's ok.
-%%	lists:foreach(
-%%		fun(Worker) ->
-%%			ok = gen_server:call(Worker, {set, undefined, undefined}),
-%%			erlang:garbage_collect(whereis(Worker))
-%%		end,
-%%		Workers
-%%	),
-%%	undefined;
 
 load(Path, Workers) ->
+	PatternUpload = filename:join(Path, "*.{bin,BIN}"),
 	WorkDir = wpath(Path),
 	PatternCurrent = filename:join(WorkDir, ?MARK ++ "*.bin"),
-	FilesW = lists:reverse(lists:sort(filelib:wildcard(PatternCurrent))),
-	Result = case try_load_file(FilesW) of
+	FilesCurrent = lists:reverse(lists:sort(filelib:wildcard(PatternCurrent))),
+	FilesUpload = lists:reverse(lists:sort(filelib:wildcard(PatternUpload))),
+
+	ok = filelib:ensure_dir(WorkDir),
+
+	Result = case try_load_file(FilesUpload) of
 				 undefined ->
-					 Pattern = filename:join(Path, "*.{bin,BIN}"),
-					 FilesU = lists:reverse(lists:sort(filelib:wildcard(Pattern))),
-					 case try_load_file(FilesU) of
-						 {ok, {File, Meta}} ->
-							 ok = filelib:ensure_dir(WorkDir),
-							 HardlinkName = filename:join(WorkDir,
-								 ?MARK ++ integer_to_list(erlang:system_time(seconds)) ++ ".bin"),
-							 filelib:ensure_dir(HardlinkName),
-							 ok = file:make_link(File, HardlinkName),
-							 {ok, {HardlinkName, Meta}};
+					 case try_load_file(FilesCurrent) of
+						 {ok, _} = Ret -> Ret;
 						 Else -> Else
 					 end;
-				 Ok -> Ok
+				 {ok, {File, Meta}} ->
+					 HardlinkName = filename:join(WorkDir,
+												  ?MARK ++ integer_to_list(erlang:system_time(seconds)) ++ ".bin"),
+					 filelib:ensure_dir(HardlinkName),
+					 ok = file:make_link(File, HardlinkName),
+					 {ok, {HardlinkName, Meta}}
 			 end,
+
 	notify_workers(Workers, Result),
 	cleanup(Path, Result),
 	Result.
@@ -148,48 +142,6 @@ try_load_file([File | Files]) ->
 			try_load_file(Files)
 	end.
 
-
-%%
-%%db_file(Path) ->
-%%	Pattern = filename:join(Path, "*.{bin,BIN}"),
-%%	Files = filelib:wildcard(Pattern),
-%%	first_db_file(Files).
-%%
-%%
-%%
-%%saved_db_file(Path) ->
-%%	Pattern = filename:join(Path, ?MARK ++ "*.bin"),
-%%	Files = lists:reverse(lists:sort(filelib:wildcard(Pattern))),
-%%	first_db_file(Files).
-%%
-%%first_db_file([]) -> undefined;
-%%first_db_file([File|Files]) ->
-%%	case ip2l_format:open(File) of
-%%		{ok, FRec} ->
-%%			Meta = ip2l_format:meta(FRec),
-%%			ip2l_format:close(FRec),
-%%			{ok, {File, Meta}};
-%%		_ ->
-%%			first_db_file(Files)
-%%	end.
-%%
-%%find_file(Path) ->
-%%	WPath = wpath(Path),
-%%	case db_file(Path) of
-%%		undefined ->
-%%			case saved_db_file(WPath) of
-%%				undefined ->
-%%					undefined;
-%%				{ok, {File, Meta}} ->
-%%					{ok, {File, Meta}}
-%%			end;
-%%		{ok, {File, Meta}} ->
-%%			ok = filelib:ensure_dir(WPath),
-%%			HardlinkName = filename:join(WPath, ?MARK ++ timestamp() ++ ".bin"),
-%%			filelib:ensure_dir(HardlinkName),
-%%			ok = file:make_link(File, HardlinkName),
-%%			{ok, {HardlinkName, Meta}}
-%%	end.
 
 notify_workers(Workers, {ok, {File, _Meta}}) ->
 	notify_workers(Workers, File);
