@@ -31,6 +31,7 @@ testip2l(Config) ->
 	Dir2 = filename:join(DataDir, "dir2"),
 	ok = ip2l:start_pool(pool2, [{size, 2}, {sup_flags, {one_for_all, 1, 5}}], Dir2),
 	{ok, #ip2l{country_short = <<"AU">>, country_long = <<"Australia">>}} = ip2l:lookup(pool2, {1, 10, 10, 10}),
+	{ok, #ip2l{country_short = <<"AU">>, country_long = <<"Australia">>}} = ip2l:lookup(pool2, 16#010a0a0a),
 	ip2l:stop_pool(pool1),
 	case catch ip2l:lookup(pool1, {10, 10, 10, 10}) of
 		{'EXIT', _} -> ok

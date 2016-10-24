@@ -24,7 +24,7 @@ the directory for the new file, if there's one - do hardlink, open hardlink, del
 the file. So don't call `reload_database` and don't start pools while file is still copied into the directory
 as the app would use incomplete file. Don't use multiple pools with the same directory. And don't use
 working directories for anything else but the DB files.
-* The app accepts IPs in `{B3:8, B2:8, B1:8, B0:8}` format.
+* The app accepts IPs in `{B3:8, B2:8, B1:8, B0:8}` and big-endian dword formats.
 * You must specify unique directory for each pool. While it is not enforced by the app itself, you still should
 start pools with unique directories only, otherwise there will be some nasty races.
 

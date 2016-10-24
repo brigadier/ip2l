@@ -47,7 +47,9 @@ try_read_meta(Handle) ->
 
 lookup({A, B, C, D} = _IPv4, IP2LFile) ->
 	WIp = (A bsl 24) + (B bsl 16) + (C bsl 8) + D,
-	lookup_ipv4(WIp, IP2LFile).
+	lookup_ipv4(WIp, IP2LFile);
+lookup(IPv4, IP2LFile) ->
+	lookup_ipv4(IPv4, IP2LFile).
 
 lookup_ipv4(WIp, #ip2lfile{meta = #ip2lmeta{ipv4dbcount = DBCount}} = IP2LFile) ->
 	bisect_ipv4(WIp, 0, DBCount, IP2LFile).

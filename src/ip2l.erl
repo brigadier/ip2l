@@ -22,8 +22,10 @@ start() ->
 	true = ensure_started(ip2l).
 
 
--spec lookup(atom(), {integer(), integer(), integer(), integer()}) -> {ok, #ip2l{}} | {error, term()}.
-lookup(Pool, IP) ->
+-spec lookup(atom(), {integer(), integer(), integer(), integer()}|integer()) -> {ok, #ip2l{}} | {error, term()}.
+lookup(Pool, IP) when IP >= 0, IP =< 16#FFFFFFFF ->
+	ip2l_worker:lookup(maybe_worker(Pool), IP);
+lookup(Pool, {_, _, _, _} = IP) ->
 	ip2l_worker:lookup(maybe_worker(Pool), IP).
 
 

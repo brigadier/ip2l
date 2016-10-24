@@ -28,7 +28,7 @@ simplepool_start_link(Visibility, Name, Controller, Args) ->
 	gen_server:start_link({Visibility, Name}, ?MODULE, [Controller | Args], []).
 
 
-lookup(Worker, {_, _, _, _} = IP) ->
+lookup(Worker, IP) ->
 	gen_server:call(Worker, {lookup, IP}).
 %%%===================================================================
 %%% gen_server callbacks
