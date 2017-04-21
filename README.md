@@ -45,7 +45,7 @@ Copy the .bin file into the `./priv` directory
 
 ```erlang
 ip2l:start().
-ok = ip2l:start_pool(pool1, [{size, 32}, {sup_flags, {one_for_all, 1, 5}}], "priv").
+{ok, _} = ip2l:start_pool(pool1, [{size, 32}, {sup_flags, {one_for_all, 1, 5}}], "priv").
 {ok, #ip2l{country_short = <<"AU">>, country_long = <<"Australia">>}} = ip2l:lookup(pool1, {1, 10, 10, 10}).
 {ok, #ip2l{country_short = <<"AU">>, country_long = <<"Australia">>}} = ip2l:lookup(pool1, v4, 16#010a0a0a).
 ok = ip2l:reload_base(pool1, "/tmp/otherdir/").
