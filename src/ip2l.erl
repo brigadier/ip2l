@@ -4,29 +4,36 @@
 -include_lib("eunit/include/eunit.hrl").
 %% API
 -export([
-	lookup/2
+	  lookup/2
 	, start/0
 %%	, open/1
 	, start_pool/3
 	, start_pool/4
 	, stop_pool/1
-	, reload_base/1, reload_base/2, state/1]).
+	, reload_base/1, reload_base/2, state/1, lookup/3]).
 
 
 -type deep_list() :: [char() | atom() | deep_list()].
 
 -type name_all() :: string() | atom() | deep_list() | (RawFilename :: binary()).
 
-
+-type ip_tuple() :: {integer(), integer(), integer(), integer()} | {integer(), integer(), integer(), integer(),
+																	integer(), integer(), integer(), integer()}.
 start() ->
-	true = ensure_started(ip2l).
+	{ok, _} = application:ensure_all_started(ip2l).
 
 
--spec lookup(atom(), {integer(), integer(), integer(), integer()}|integer()) -> {ok, #ip2l{}} | {error, term()}.
-lookup(Pool, IP) when IP >= 0, IP =< 16#FFFFFFFF ->
-	ip2l_worker:lookup(maybe_worker(Pool), IP);
-lookup(Pool, {_, _, _, _} = IP) ->
-	ip2l_worker:lookup(maybe_worker(Pool), IP).
+-spec lookup(atom(), v4|v6, non_neg_integer()) -> {ok, #ip2l{}} | not_found | {error, term()}.
+lookup(Pool, V, IntIP) ->
+	case ip2l_worker:lookup(maybe_worker(Pool), V, IntIP) of
+		#ip2l{} = Res -> {ok, Res};
+		Else -> Else
+	end.
+
+-spec lookup(atom(), ip_tuple()) -> {ok, #ip2l{}} | not_found | {error, term()}.
+lookup(Pool, IP) ->
+	{V, IntIP} = parseip(IP),
+	lookup(Pool, V, IntIP).
 
 
 -spec start_pool(atom()|{proc, atom()}, list()|map(), name_all()|undefined) -> {error, term()} | ok.
@@ -94,3 +101,15 @@ maybe_controller(Pool) -> simplepool:controller(Pool).
 
 maybe_worker({proc, Worker}) -> Worker;
 maybe_worker(Pool) -> simplepool:rand_worker(Pool).
+
+
+parseip({A, B, C, D} = _IPv4) ->
+	{v4, (A bsl 24) + (B bsl 16) + (C bsl 8) + D};
+
+parseip({0, 0, 0, 0, 0, 16#FFFF, Hi, Lo} = _IPv6) ->
+	{v4, (Hi bsl 16) + Lo};
+
+parseip({A, B, C, D, E, F, G, H} = _IPv6) ->
+	{v6, (A bsl 112) + (B bsl 96) + (C bsl 80) + (D bsl 64) + (E bsl 48) + (F bsl 32) + (G bsl 16) + H}.
+
+

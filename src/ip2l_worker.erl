@@ -6,7 +6,7 @@
 
 -include_lib("eunit/include/eunit.hrl").
 %% API
--export([simplepool_start_link/4, lookup/2]).
+-export([simplepool_start_link/4,  lookup/3]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -27,9 +27,10 @@
 simplepool_start_link(Visibility, Name, Controller, Args) ->
 	gen_server:start_link({Visibility, Name}, ?MODULE, [Controller | Args], []).
 
+lookup(Worker, V, IP) ->
+	gen_server:call(Worker, {lookup, V, IP}).
 
-lookup(Worker, IP) ->
-	gen_server:call(Worker, {lookup, IP}).
+
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -41,12 +42,12 @@ init([Controller|_]) ->
 
 
 
-handle_call({lookup, _IP}, _From, #state{handle = undefined} = State) ->
+handle_call({lookup,_V, _IP}, _From, #state{handle = undefined} = State) ->
 	{reply, {error, closed}, State};
 
-handle_call({lookup, IP}, _From, #state{handle = Handle} = State) ->
-	Result = ip2l_format:lookup(IP, Handle),
-	{reply, {ok, Result}, State};
+handle_call({lookup, V, IP}, _From, #state{handle = Handle} = State) ->
+	Result = ip2l_format:lookup(V, IP, Handle),
+	{reply, Result, State};
 
 handle_call({open, undefined}, _From, #state{handle = Handle} = State) ->
 	maybeclose(Handle),

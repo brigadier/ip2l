@@ -1,6 +1,6 @@
 {application, ip2l, [
 	{description, "IP2Location access application"},
-	{vsn, "0.7.0"},
+	{vsn, "1.0.0"},
 	{modules, []},
 	{registered, []},
 	{applications, [

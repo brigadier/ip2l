@@ -5,7 +5,11 @@
 	ipv4dbcount,
 	ipv4dbaddr,
 	ipv6dbcount,
-	ipv6dbaddr
+	ipv6dbaddr,
+	ipv4indexbaseaddr,
+	ipv6indexbaseaddr,
+	ipv4columnsize,
+	ipv6columnsize
 
 }).
 

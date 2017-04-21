@@ -2,7 +2,7 @@
 
 #### Features:
 * Supports all 24 types of IP2Location databases;
-* IPv4 only;
+* ~~IPv4 only~~ IPv4 and IPv6 since 1.0.0;
 * Multiple pools, each with its' own file and settings;
 * Start/stop pools dynamically or from the application `env`;
 * Access to each opened file by atom;
@@ -24,7 +24,9 @@ the directory for the new file, if there's one - do hardlink, open hardlink, del
 the file. So don't call `reload_database` and don't start pools while file is still copied into the directory
 as the app would use incomplete file. Don't use multiple pools with the same directory. And don't use
 working directories for anything else but the DB files.
-* The app accepts IPs in `{B3:8, B2:8, B1:8, B0:8}` and big-endian dword formats.
+* The app accepts IPs in `{B3:8, B2:8, B1:8, B0:8}` and
+`{W7:16, W6:16, W5:16, W4:16, W3:16, W2:16, W1:16, W0:16}`formats.
+Also you can use IP as integer and specify type of ip (`v4` or `v6`).
 * You must specify unique directory for each pool. While it is not enforced by the app itself, you still should
 start pools with unique directories only, otherwise there will be some nasty races.
 
@@ -37,12 +39,15 @@ Build
 
 #### Example:
 
+Copy the .bin file into the `./priv` directory
 
+```$ rebar3 shell```
 
 ```erlang
 ip2l:start().
 ok = ip2l:start_pool(pool1, [{size, 32}, {sup_flags, {one_for_all, 1, 5}}], "priv").
 {ok, #ip2l{country_short = <<"AU">>, country_long = <<"Australia">>}} = ip2l:lookup(pool1, {1, 10, 10, 10}).
+{ok, #ip2l{country_short = <<"AU">>, country_long = <<"Australia">>}} = ip2l:lookup(pool1, v4, 16#010a0a0a).
 ok = ip2l:reload_base(pool1, "/tmp/otherdir/").
 ```
 
@@ -57,8 +62,5 @@ Tests
 Tests use some demo databases downloaded from the IP2Location site. The databases are incomplete,
 could and should be used for testing purposes only. The license for the app does not cover usage of these files.
 
-#### TODO
-
-* Add IPv6 support
 
 
