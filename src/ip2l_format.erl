@@ -72,7 +72,8 @@ lookup(v4, IntIPv4, #ip2lfile{fhandle = FHandle,
 	{Low, High} = start_lo_hi(v4, IntIPv4, DBCount, IndexBaseAddr, FHandle),
 	bisect_ip(v4, IntIPv4, FHandle, DBType, DBAddr, Low, High, ColumnSize);
 
-
+lookup(v6, _IntIPv6, #ip2lfile{meta = #ip2lmeta{ipv6dbcount = 0}}) ->
+	not_found;
 
 lookup(v6, IntIPv6, #ip2lfile{fhandle = FHandle,
 							  meta = #ip2lmeta{dbtype = DBType, ipv6dbaddr = DBAddr,
